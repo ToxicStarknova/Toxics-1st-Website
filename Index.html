@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Engineering Calculator</title>
+    <title>SI Unit Engineering Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,7 +22,7 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
         }
         .container {
-            background-color: rgba(255, 255, 255, 0.85);
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly less transparent */
             padding: 40px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -40,6 +40,7 @@
             margin-top: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
+            cursor: pointer;
         }
         .input-group {
             margin-top: 20px;
@@ -59,15 +60,21 @@
         #result {
             margin-top: 20px;
             font-size: 1.2em;
-            font-weight: bold;
+            /* font-weight is removed here to allow for mixed bold/normal text */
             color: #2c3e50;
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #bdc3c7;
+            min-height: 50px;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Engineering Formula Calculator 📐</h1>
-        <p>Select a formula, enter the values, and see the result.</p>
+        <h1>Engineering Calculator (SI Units) 📐</h1>
+        <p>Select a formula, enter the values in SI units, and see the result.</p>
 
         <select id="formulaSelector">
             <option value="">--Select a Formula--</option>
@@ -80,32 +87,33 @@
 
         <button onclick="calculate()">Calculate</button>
 
-        <p id="result"></p>
+        <div id="result">Your result will be displayed here.</div>
     </div>
 
     <script>
         const formulaSelector = document.getElementById('formulaSelector');
         const inputsDiv = document.getElementById('inputs');
-        const resultP = document.getElementById('result');
+        const resultDiv = document.getElementById('result');
 
+        // Updated formulas object with specific SI units
         const formulas = {
             ohmsLaw: [
-                { name: 'Current (I)', unit: 'Amps' },
-                { name: 'Resistance (R)', unit: 'Ohms' }
+                { name: 'Current (I)', unit: 'Amps (A)' },
+                { name: 'Resistance (R)', unit: 'Ohms (Ω)' }
             ],
             circleArea: [
-                { name: 'Radius (r)', unit: 'units' }
+                { name: 'Radius (r)', unit: 'meters (m)' }
             ],
             cylinderVolume: [
-                { name: 'Radius (r)', unit: 'units' },
-                { name: 'Height (h)', unit: 'units' }
+                { name: 'Radius (r)', unit: 'meters (m)' },
+                { name: 'Height (h)', unit: 'meters (m)' }
             ]
         };
 
         formulaSelector.addEventListener('change', () => {
             const selectedFormula = formulaSelector.value;
             inputsDiv.innerHTML = '';
-            resultP.textContent = ''; // Clear previous result
+            resultDiv.innerHTML = 'Your result will be displayed here.'; // Clear previous result
 
             if (!selectedFormula) return;
 
@@ -114,12 +122,13 @@
                 inputGroup.className = 'input-group';
                 
                 const label = document.createElement('label');
-                label.textContent = `${param.name} (${param.unit}):`;
+                label.setAttribute('for', `input_${param.name}`);
+                label.textContent = `${param.name} in ${param.unit}:`;
                 
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.id = `input_${param.name}`;
-                input.placeholder = `Enter ${param.name}`;
+                input.placeholder = `Enter value in ${param.unit}`;
 
                 inputGroup.appendChild(label);
                 inputGroup.appendChild(input);
@@ -130,7 +139,7 @@
         function calculate() {
             const selectedFormula = formulaSelector.value;
             if (!selectedFormula) {
-                resultP.textContent = 'Please select a formula first!';
+                resultDiv.textContent = 'Please select a formula first!';
                 return;
             }
 
@@ -143,24 +152,29 @@
                     const r = parseFloat(document.getElementById('input_Resistance (R)').value);
                     if (isNaN(i) || isNaN(r)) throw new Error('Invalid input');
                     result = i * r;
-                    calculationText = `Voltage (V) = ${i} A * ${r} Ω = ${result.toFixed(2)} Volts`;
+                    // Result in Volts (V)
+                    calculationText = `V = ${i} A * ${r} Ω = <strong>${result.toFixed(2)} V</strong>`;
                 } else if (selectedFormula === 'circleArea') {
                     const r = parseFloat(document.getElementById('input_Radius (r)').value);
                     if (isNaN(r)) throw new Error('Invalid input');
                     result = Math.PI * r * r;
-                    calculationText = `Area = π * ${r}² ≈ ${result.toFixed(2)} units²`;
+                    // Result in square meters (m²)
+                    calculationText = `Area = π * (${r} m)² ≈ <strong>${result.toFixed(2)} m²</strong>`;
                 } else if (selectedFormula === 'cylinderVolume') {
                     const r = parseFloat(document.getElementById('input_Radius (r)').value);
                     const h = parseFloat(document.getElementById('input_Height (h)').value);
                     if (isNaN(r) || isNaN(h)) throw new Error('Invalid input');
                     result = Math.PI * r * r * h;
-                    calculationText = `Volume = π * ${r}² * ${h} ≈ ${result.toFixed(2)} units³`;
+                    // Result in cubic meters (m³)
+                    calculationText = `Volume = π * (${r} m)² * ${h} m ≈ <strong>${result.toFixed(2)} m³</strong>`;
                 }
-                resultP.textContent = `Result: ${calculationText}`;
+                // Use .innerHTML to allow for the <strong> tag to make the result bold
+                resultDiv.innerHTML = `Result: ${calculationText}`;
             } catch (e) {
-                resultP.textContent = 'Error: Please enter valid numbers for all fields.';
+                resultDiv.textContent = 'Error: Please enter valid numbers for all fields.';
             }
         }
     </script>
 </body>
 </html>
+
