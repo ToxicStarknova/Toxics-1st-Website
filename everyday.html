@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Everyday Tech Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Everyday Tech Calculator 💡</h1>
+        <p>Translate technical numbers into real-world examples.</p>
+        
+        <div class="calculator-selector">
+            <div class="card" onclick="showCalculator('solar')">
+                <div class="icon">☀️</div>
+                <h2>What Can My Solar Power?</h2>
+            </div>
+            <div class="card" onclick="showCalculator('battery')">
+                <div class="icon">🔋</div>
+                <h2>How Long Will My Battery Last?</h2>
+            </div>
+        </div>
+
+        <div id="solarCalculator" class="calculator-interface" style="display:none;">
+            <h3>Solar Power Translator</h3>
+            <div class="input-group">
+                <label for="solarInput">How much power are your solar panels generating right now?</label>
+                <input type="number" id="solarInput" placeholder="e.g., 5">
+                <label style="text-align:right; font-weight:normal; margin-top:5px;">in Kilowatts (kW)</label>
+            </div>
+            <button onclick="calculateSolar()">See what you can run!</button>
+        </div>
+
+        <div id="batteryCalculator" class="calculator-interface" style="display:none;">
+            <h3>Battery Life Estimator</h3>
+            <div class="input-group">
+                <label for="batteryInput">What is your battery's capacity?</label>
+                <input type="number" id="batteryInput" placeholder="e.g., 10">
+                <label style="text-align:right; font-weight:normal; margin-top:5px;">in Kilowatt-hours (kWh)</label>
+            </div>
+            <div class="input-group">
+                <label for="applianceInput">What is the power of the appliance you want to run?</label>
+                <input type="number" id="applianceInput" placeholder="Enter a custom value or select below">
+                 <select onchange="document.getElementById('applianceInput').value = this.value">
+                    <option value="">-- or select a common appliance --</option>
+                    <option value="2200">Kettle (~2200W)</option>
+                    <option value="150">Large TV (~150W)</option>
+                    <option value="1000">Microwave (~1000W)</option>
+                    <option value="65">Laptop (~65W)</option>
+                    <option value="10">LED Light Bulb (~10W)</option>
+                </select>
+                <label style="text-align:right; font-weight:normal; margin-top:5px;">in Watts (W)</label>
+            </div>
+            <button onclick="calculateBattery()">Estimate Battery Life</button>
+        </div>
+
+        <div id="result" style="display:none;"></div>
+
+        <a href="index.html" style="display: block; margin-top: 20px; color: #3498db;">&larr; Back to Main Menu</a>
+    </div>
+
+    <script>
+        const solarCalcDiv = document.getElementById('solarCalculator');
+        const batteryCalcDiv = document.getElementById('batteryCalculator');
+        const resultDiv = document.getElementById('result');
+
+        // This function shows the correct calculator based on the card clicked
+        function showCalculator(type) {
+            solarCalcDiv.style.display = (type === 'solar') ? 'block' : 'none';
+            batteryCalcDiv.style.display = (type === 'battery') ? 'block' : 'none';
+            resultDiv.style.display = 'none'; // Hide old results
+        }
+
+        // --- Solar Calculator Logic ---
+        function calculateSolar() {
+            const solarKW = parseFloat(document.getElementById('solarInput').value);
+            if (isNaN(solarKW) || solarKW <= 0) {
+                resultDiv.innerHTML = "Please enter a valid amount of power (e.g., 5).";
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            const solarWatts = solarKW * 1000;
+            const appliances = {
+                'Kettles': 2200,
+                'Microwaves': 1000,
+                'Toasters': 900,
+                'Large TVs': 150,
+                'Laptops': 65,
+                '10W LED Bulbs': 10
+            };
+
+            let resultHTML = `With <strong>${solarKW} kW</strong> (${solarWatts} Watts), you could run approximately:<ul>`;
+            for (const name in appliances) {
+                const count = Math.floor(solarWatts / appliances[name]);
+                resultHTML += `<li><strong>${count}</strong> ${name}</li>`;
+            }
+            resultHTML += `</ul>`;
+            
+            resultDiv.innerHTML = resultHTML;
+            resultDiv.style.display = 'block';
+        }
+
+        // --- Battery Calculator Logic ---
+        function calculateBattery() {
+            const batteryKWh = parseFloat(document.getElementById('batteryInput').value);
+            const applianceW = parseFloat(document.getElementById('applianceInput').value);
+
+            if (isNaN(batteryKWh) || isNaN(applianceW) || batteryKWh <= 0 || applianceW <= 0) {
+                 resultDiv.innerHTML = "Please enter valid values for both battery capacity and appliance power.";
+                 resultDiv.style.display = 'block';
+                 return;
+            }
+
+            const batteryWh = batteryKWh * 1000;
+            const hoursTotal = batteryWh / applianceW;
+
+            const hours = Math.floor(hoursTotal);
+            const minutes = Math.round((hoursTotal - hours) * 60);
+
+            resultDiv.innerHTML = `A <strong>${batteryKWh} kWh</strong> battery could power a <strong>${applianceW} W</strong> appliance for approximately: <br><strong>${hours} hours and ${minutes} minutes</strong>.`;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
