@@ -7,19 +7,31 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: #f0f0f0; /* Fallback color */
+
+            /* --- UPDATED BACKGROUND IMAGE CSS --- */
+            background-image: url('backgroundimage.jpeg'); /* Corrected path */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            /* --- END UPDATED BACKGROUND IMAGE CSS --- */
+
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            color: white; /* Text color for contrast */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7); /* Adds shadow for readability */
         }
         .container {
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white background for content */
             padding: 40px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
+            color: #333; /* Reset text color for container */
         }
         h1 {
             color: #333;
