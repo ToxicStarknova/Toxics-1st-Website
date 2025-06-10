@@ -3,50 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My First Netlify Site</title>
+    <title>Engineering Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0; /* Fallback color */
-
-            /* --- THIS IS THE CRUCIAL LINE --- */
-            background-image: url('20250609_154818.jpeg'); /* Image directly in root */
-            /* --- END CRUCIAL LINE --- */
-
+            background-color: #f0f0f0;
+            background-image: url('20250609_154818.jpeg');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center center;
             background-attachment: fixed;
-
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            color: white; /* Text color for contrast */
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7); /* Adds shadow for readability */
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
         }
         .container {
-            background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white background for content */
+            background-color: rgba(255, 255, 255, 0.85);
             padding: 40px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
-            color: #333; /* Reset text color for container */
+            color: #333;
+            width: 90%;
+            max-width: 500px;
         }
         h1 {
             color: #333;
         }
-        p {
-            color: #666;
+        select, button {
+            font-size: 16px;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .input-group {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Hello, Netlify!</h1>
-        <p>This is my very first webpage hosted on this mine website111.</p>
-        <p>I'm learning how to build and deploy websites!</p>
+        <h1>Engineering Formula Calculator 📐</h1>
+        <p>Select a formula, enter the values, and see the result.</p>
+
+        <select id="formulaSelector">
+            <option value="">--Select a Formula--</option>
+            <option value="ohmsLaw">Ohm's Law (Voltage)</option>
+            <option value="circleArea">Area of a Circle</option>
+            <option value="cylinderVolume">Volume of a Cylinder</option>
+        </select>
+
+        <div id="inputs"></div>
+
+        <button onclick="calculate()">Calculate</button>
+
+        <p id="result"></p>
     </div>
+
+    <script>
+        const formulaSelector = document.getElementById('formulaSelector');
+        const inputsDiv = document.getElementById('inputs');
+        const resultP = document.getElementById('result');
+
+        const formulas = {
+            ohmsLaw: [
+                { name: 'Current (I)', unit: 'Amps' },
+                { name: 'Resistance (R)', unit: 'Ohms' }
+            ],
+            circleArea: [
+                { name: 'Radius (r)', unit: 'units' }
+            ],
+            cylinderVolume: [
+                { name: 'Radius (r)', unit: 'units' },
+                { name: 'Height (h)', unit: 'units' }
+            ]
+        };
+
+        formulaSelector.addEventListener('change', () => {
+            const selectedFormula = formulaSelector.value;
+            inputsDiv.innerHTML = '';
+            resultP.textContent = ''; // Clear previous result
+
+            if (!selectedFormula) return;
+
+            formulas[selectedFormula].forEach(param => {
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'input-group';
+                
+                const label = document.createElement('label');
+                label.textContent = `${param.name} (${param.unit}):`;
+                
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = `input_${param.name}`;
+                input.placeholder = `Enter ${param.name}`;
+
+                inputGroup.appendChild(label);
+                inputGroup.appendChild(input);
+                inputsDiv.appendChild(inputGroup);
+            });
+        });
+
+        function calculate() {
+            const selectedFormula = formulaSelector.value;
+            if (!selectedFormula) {
+                resultP.textContent = 'Please select a formula first!';
+                return;
+            }
+
+            let result;
+            let calculationText = '';
+
+            try {
+                if (selectedFormula === 'ohmsLaw') {
+                    const i = parseFloat(document.getElementById('input_Current (I)').value);
+                    const r = parseFloat(document.getElementById('input_Resistance (R)').value);
+                    if (isNaN(i) || isNaN(r)) throw new Error('Invalid input');
+                    result = i * r;
+                    calculationText = `Voltage (V) = ${i} A * ${r} Ω = ${result.toFixed(2)} Volts`;
+                } else if (selectedFormula === 'circleArea') {
+                    const r = parseFloat(document.getElementById('input_Radius (r)').value);
+                    if (isNaN(r)) throw new Error('Invalid input');
+                    result = Math.PI * r * r;
+                    calculationText = `Area = π * ${r}² ≈ ${result.toFixed(2)} units²`;
+                } else if (selectedFormula === 'cylinderVolume') {
+                    const r = parseFloat(document.getElementById('input_Radius (r)').value);
+                    const h = parseFloat(document.getElementById('input_Height (h)').value);
+                    if (isNaN(r) || isNaN(h)) throw new Error('Invalid input');
+                    result = Math.PI * r * r * h;
+                    calculationText = `Volume = π * ${r}² * ${h} ≈ ${result.toFixed(2)} units³`;
+                }
+                resultP.textContent = `Result: ${calculationText}`;
+            } catch (e) {
+                resultP.textContent = 'Error: Please enter valid numbers for all fields.';
+            }
+        }
+    </script>
 </body>
 </html>
